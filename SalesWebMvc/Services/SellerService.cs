@@ -29,6 +29,18 @@ namespace SalesWebMvc.Services
             _context.Add(obj); //aqui ele adiciona o obj (vendedor)
             _context.SaveChanges();//aqui ele salva no banco
         }
+        //método para encontrar o ID do vendedor
+        public Seller FindById(int id)
+        {
+            return _context.Seller.FirstOrDefault(obj => obj.Id == id);
+        }
+
+        public void Remove(int id)
+        {
+            var obj = _context.Seller.Find(id); //primeiro encontra o id na tabela seller do bd
+            _context.Seller.Remove(obj);//aqui ele remove
+            _context.SaveChanges();//aqui ele salva
+        }
 
     }
 }

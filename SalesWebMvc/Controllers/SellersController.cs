@@ -46,5 +46,30 @@ namespace SalesWebMvc.Controllers
             //return RedirectToAction("Index"); --> poderia ser assim, mas caso mude o nome do index, teria que mudar aqui também
             return RedirectToAction(nameof(Index));
         }
+
+        //mensagem para confirmar a remoção GET
+        public IActionResult Delete(int? id)//o ponto de interrogação significa que opcional
+        {
+            if(id == null)
+            {
+                return NotFound();//NotFound é para retornar uma resposta básica de erro
+            }
+
+            var obj = _sellerService.FindById(id.Value);//como o id é opcional, deve-se colocar o value
+            if(obj == null)
+            {
+                return NotFound(); //se o objeto passado for null, retorna a resposta básica de erro
+            }
+            return View(obj);
+        }
+        //DELETE POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            _sellerService.Remove(id);//remove o vendedor com o id passado
+            return RedirectToAction(nameof(Index));//depois de remover redireciona para a página principal de vendedor
+        }
+
     }
 }
