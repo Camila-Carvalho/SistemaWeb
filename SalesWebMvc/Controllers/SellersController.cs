@@ -71,5 +71,22 @@ namespace SalesWebMvc.Controllers
             return RedirectToAction(nameof(Index));//depois de remover redireciona para a página principal de vendedor
         }
 
+        //DETALHES GET, mesma lógica do GetDelete
+        public IActionResult Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();//NotFound é para retornar uma resposta básica de erro
+            }
+
+            var obj = _sellerService.FindById(id.Value);//como o id é opcional, deve-se colocar o value
+            if (obj == null)
+            {
+                return NotFound(); //se o objeto passado for null, retorna a resposta básica de erro
+            }
+            return View(obj);
+        }
+
+
     }
 }
