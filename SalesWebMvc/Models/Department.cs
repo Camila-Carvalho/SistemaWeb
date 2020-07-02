@@ -11,7 +11,9 @@ namespace SalesWebMvc.Models
         public string Name { get; set; }
         public ICollection<Seller> Sellers { get; set; } = new List<Seller>(); //aqui declaramos uma coleção do tipo vendedores e instanciamos com uma lista de vendedores
 
-        public Department() { }
+        public Department()
+        {
+        }
 
         public Department(int id, string name)
         {

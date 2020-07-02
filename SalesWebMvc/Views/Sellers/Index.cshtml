@@ -1,7 +1,59 @@
-﻿@{
-    ViewData["Title"] = "Index";
+﻿@model IEnumerable<SalesWebMvc.Models.Seller>
+<!--necessário para buscar a lista passada na view
+    é utilizado o IEnurable pois é o mais genérico, então ele pega lista, coleções...
+    dentro do ienurable é passado o caminho da classe-->
+
+@{
+    ViewData["Title"] = "Sellers";
 }
 
-<h2>Sellers</h2>
-<p>Sellers index page</p>
+<h2>@ViewData["Title"]</h2> <!--Ao invés de escrever o título, ele busca o que está declarado na view data-->
+<!--Tabela é criada para mostrar a lista de vendedores-->
+<table class="table table-striped table-hover">
+    <!--Define que o que está dentro desta tag é o cabeçalho da tabela-->
+    <thead>
+        <!--Define a linha do cabeçalho da tabela-->
+        <tr class="success">
+            <!--Define a coluna da linha do cabeçalho da tabela-->
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BirthDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BaseSalary)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <!--Para definir o corpo da tabela-->
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BirthDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BaseSalary)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
 
