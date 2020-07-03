@@ -15,39 +15,39 @@ namespace SalesWebMvc.Services
         private readonly SalesWebMvcContext _context;
         //readonly = somente leitura, então colocando isto este _context não pode ser alterado
         //3 ---> Criar construtor para que a injeção de dependencia possa ocorrer
-        public SellerService (SalesWebMvcContext context)
+        public SellerService(SalesWebMvcContext context)
         {
             _context = context;
         }
         //4 ---> implementar o FindAll retornando a lista de vendedores
-        public List<Seller> FindAll()
+        public async Task<List<Seller>> FindAllAsync()
         {//acessa a fonte de dados (_context) na tabela de vendedores (Seller) e retorna convertida para Lista (ToList)
-            return _context.Seller.ToList();
+            return await _context.Seller.ToListAsync();
         }
 
         //metodo para inserir um novo vendedor no bd
-        public void Insert(Seller obj)
+        public async Task InsertAsync(Seller obj)
         {
             _context.Add(obj); //aqui ele adiciona o obj (vendedor)
-            _context.SaveChanges();//aqui ele salva no banco
+            await _context.SaveChangesAsync();//aqui ele salva no banco
         }
         //método para encontrar o ID do vendedor
-        public Seller FindById(int id)
+        public async Task<Seller> FindByIdAsync(int id)
         {//retorna do banco o seller e também foi acrescendato o include para ele fazer um JOIN com a tabela de departamento
-            return _context.Seller.Include(obj => obj.Department).FirstOrDefault(obj => obj.Id == id);
+            return await _context.Seller.Include(obj => obj.Department).FirstOrDefaultAsync(obj => obj.Id == id);
         }
 
-        public void Remove(int id)
+        public async Task RemoveAsync(int id)
         {
-            var obj = _context.Seller.Find(id); //primeiro encontra o id na tabela seller do bd
+            var obj = await _context.Seller.FindAsync(id); //primeiro encontra o id na tabela seller do bd
             _context.Seller.Remove(obj);//aqui ele remove
-            _context.SaveChanges();//aqui ele salva
+            await _context.SaveChangesAsync();//aqui ele salva
         }
 
         //update
-        public void Update(Seller obj)
+        public async Task UpdateAsync(Seller obj)
         {
-            if (!_context.Seller.Any(x => x.Id == obj.Id))
+            if (!await _context.Seller.AnyAsync(x => x.Id == obj.Id))
             {
                 throw new NotFoundException("Id not found");
             }
@@ -55,14 +55,11 @@ namespace SalesWebMvc.Services
             try
             {
                 _context.Update(obj);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
-            catch(DbUpdateConcurrencyException e){
-                throw new DbConcurrencyException(e.Message);
-            }
-            catch(NotFoundException e)
+            catch (DbUpdateConcurrencyException e)
             {
-                throw new NotFoundException(e.Message);
+                throw new DbConcurrencyException(e.Message);
             }
         }
     }

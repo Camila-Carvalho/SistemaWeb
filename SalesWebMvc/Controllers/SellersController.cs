@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SalesWebMvc.Models;
 using SalesWebMvc.Models.ViewModels;
 using SalesWebMvc.Services;
-using SalesWebMvc.Services.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace SalesWebMvc.Controllers
 {
@@ -25,46 +23,46 @@ namespace SalesWebMvc.Controllers
         }
         //FIM INJEÇÃO DE DEPENDENCIA
         //3 ---> implementar a chamada do FindAll
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var list = _sellerService.FindAll();//retorna a lista de seller
+            var list = await _sellerService.FindAllAsync();//retorna a lista de seller
             return View(list);//exibe a lista
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             //para carregar os departamentos
-            var departments = _departmentService.FindAll();//para buscar do BD todos os departamentos
+            var departments = await _departmentService.FindAllAsync();//para buscar do BD todos os departamentos
             var viewModel = new SellerFormViewModel { Departments = departments }; //aqui é para ele iniciar o departamento com a lista de departamentos
             return View(viewModel);
         }
         //metodo para inserir no bd
         [HttpPost] //necessário colocar esta "anotação" para indicar que a ação do método abaixo é de POST e não de GET
         [ValidateAntiForgeryToken]//anotação de proteção
-        public IActionResult Create(Seller seller)
+        public async Task<IActionResult> Create(Seller seller)
         {   //teste de validação
             if (!ModelState.IsValid)
             {
-                var departments = _departmentService.FindAll();
+                var departments = await _departmentService.FindAllAsync();
                 var viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
                 return View(viewModel);
             }
             //no insere o vendedor passado no metodo no SellerService
-            _sellerService.Insert(seller);
+            await _sellerService.InsertAsync(seller);
             //para retornar para a página index
             //return RedirectToAction("Index"); --> poderia ser assim, mas caso mude o nome do index, teria que mudar aqui também
             return RedirectToAction(nameof(Index));
         }
 
         //mensagem para confirmar a remoção GET
-        public IActionResult Delete(int? id)//o ponto de interrogação significa que opcional
+        public async Task<IActionResult> Delete(int? id)//o ponto de interrogação significa que opcional
         {
             if(id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não informado."});//retorna redirecionando para a página de erro passando o argumento de mensagem
             }
 
-            var obj = _sellerService.FindById(id.Value);//como o id é opcional, deve-se colocar o value
+            var obj = await _sellerService.FindByIdAsync(id.Value);//como o id é opcional, deve-se colocar o value
             if(obj == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não existe!" });
@@ -74,21 +72,21 @@ namespace SalesWebMvc.Controllers
         //DELETE POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            _sellerService.Remove(id);//remove o vendedor com o id passado
+            await _sellerService.RemoveAsync(id);//remove o vendedor com o id passado
             return RedirectToAction(nameof(Index));//depois de remover redireciona para a página principal de vendedor
         }
 
         //DETALHES GET, mesma lógica do GetDelete
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não fornecido." });
             }
 
-            var obj = _sellerService.FindById(id.Value);//como o id é opcional, deve-se colocar o value
+            var obj = await _sellerService.FindByIdAsync(id.Value);//como o id é opcional, deve-se colocar o value
             if (obj == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não existe!" });
@@ -96,20 +94,20 @@ namespace SalesWebMvc.Controllers
             return View(obj);
         }
         //função de editar GET
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {//testar se o id é null
             if(id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não fornecido." });
             }
             //testar se ele existe no db
-            var obj = _sellerService.FindById(id.Value);
+            var obj = await _sellerService.FindByIdAsync(id.Value);
             if(obj == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não existe!" });
             }
             //abrir a tela de edição carregando os departamentos e povoando a caixa de edição
-            List<Department> departments = _departmentService.FindAll();
+            List<Department> departments = await _departmentService.FindAllAsync();
 
             SellerFormViewModel viewModel = new SellerFormViewModel { Seller = obj, Departments = departments };
             return View(viewModel);
@@ -117,12 +115,12 @@ namespace SalesWebMvc.Controllers
         //EDIT POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Seller seller)
+        public async Task<IActionResult> Edit(int id, Seller seller)
         {
             //teste de validação
             if (!ModelState.IsValid)
             {
-                var departments = _departmentService.FindAll();
+                var departments = await _departmentService.FindAllAsync();
                 var viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
                 return View(viewModel);
             }
@@ -132,7 +130,7 @@ namespace SalesWebMvc.Controllers
             }
             try
             {
-                _sellerService.Update(seller);
+                await _sellerService.UpdateAsync(seller);
                 return RedirectToAction(nameof(Index));
             }
             /*como as duas exceções abaixo pertencem a ApplicationException e possuem a mesma mensagem, pode-se colocar tudo em apenas um catch.
