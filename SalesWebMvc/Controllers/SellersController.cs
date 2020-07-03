@@ -42,7 +42,14 @@ namespace SalesWebMvc.Controllers
         [HttpPost] //necessário colocar esta "anotação" para indicar que a ação do método abaixo é de POST e não de GET
         [ValidateAntiForgeryToken]//anotação de proteção
         public IActionResult Create(Seller seller)
-        {//no insere o vendedor passado no metodo no SellerService
+        {   //teste de validação
+            if (!ModelState.IsValid)
+            {
+                var departments = _departmentService.FindAll();
+                var viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
+                return View(viewModel);
+            }
+            //no insere o vendedor passado no metodo no SellerService
             _sellerService.Insert(seller);
             //para retornar para a página index
             //return RedirectToAction("Index"); --> poderia ser assim, mas caso mude o nome do index, teria que mudar aqui também
@@ -107,11 +114,18 @@ namespace SalesWebMvc.Controllers
             SellerFormViewModel viewModel = new SellerFormViewModel { Seller = obj, Departments = departments };
             return View(viewModel);
         }
-
+        //EDIT POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Seller seller)
         {
+            //teste de validação
+            if (!ModelState.IsValid)
+            {
+                var departments = _departmentService.FindAll();
+                var viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
+                return View(viewModel);
+            }
             if (id != seller.Id)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não corresponde." });
